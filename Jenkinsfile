@@ -10,19 +10,11 @@ podTemplate(
             git branch: 'main', url: 'https://github.com/qzytwway/devops.git'
             container('maven') {
                 stage('Build a Maven project') {
-                    sh 'mvn test'
-                    publishHTML([allowMissing: false, 
-                    alwaysLinkToLastBuild: false, 
-                    keepAll: false, 
-                    reportDir: '.', 
-                    reportFiles: 'report.html', 
-                    reportName: '自动化测试报告', 
-                    reportTitles: '自动化测试', 
-                    useWrapperFileDirectly: false])
+                    sh 'mvn clean install'
                 }
-                stage('Integration testing') {
-                    sh 'mvn verify -DskipUnitTests'
-                }
+                // stage('Integration testing') {
+                //     sh 'mvn verify -DskipUnitTests'
+                // }
             }
         }
     }
