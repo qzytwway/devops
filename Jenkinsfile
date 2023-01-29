@@ -25,7 +25,7 @@ pipeline {
 		                    allowMissing: false, 
 		                    alwaysLinkToLastBuild: false, 
 		                    keepAll: false, 
-		                    reportDir: '/home/jenkins/agent/workspace/report', 
+		                    reportDir: '/var/jenkins_home/build/reports', 
 		                    reportFiles: 'index.html', 
 		                    reportName: '自动化测试报告', 
 		                    reportTitles: '自动化测试', 
