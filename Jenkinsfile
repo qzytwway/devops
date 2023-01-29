@@ -1,7 +1,7 @@
-def REGISTRY_DOMAIN = 'reg.test.cn'
+def REGISTRY_DOMAIN = "registry.cn-hangzhou.aliyuncs.com"
 def REGISTRY_URL = "http://${REGISTRY_DOMAIN}"
 def REGISTRY_CREDENTIALS_ID = 'b32a1d44-38da-419c-8afd-18672235b420'
-def GIT_REPO = 'flow'
+def GIT_REPO = 'qzytwway'
 pipeline {
     agent {
         label 'maven'
@@ -28,9 +28,9 @@ pipeline {
 
         stage('build image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'f2b16571-6852-4091-9aba-cbe06cdb021f', passwordVariable: 'password', usernameVariable: 'username')]) {
-                    sh 'docker login -u "${username}" -p "${password}" "${REGISTRY_DOMAIN}"'
-                    sh 'docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .'
+                withCredentials([usernamePassword(credentialsId: '2f92bff0-0c0e-413f-9454-5c5ca37d190c', passwordVariable: 'password', usernameVariable: 'username')]) {
+                    sh "docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}"
+                    sh "docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} ."
                 }
             }
         }
