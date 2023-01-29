@@ -10,7 +10,7 @@ pipeline {
             }
         }
 
-        stage('uild a Maven project') {
+        stage('build a Maven project') {
             steps {
                 container('maven') {
                     sh 'mvn clean install'
