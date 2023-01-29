@@ -14,28 +14,24 @@ pipeline {
             steps {
                 container('maven') {
                     sh 'mvn clean install'
-                    publishHTML(
-	                    [
-		                    allowMissing: false, 
-		                    alwaysLinkToLastBuild: false, 
-		                    keepAll: false, 
-		                    reportDir: '.', 
-		                    reportFiles: 'index.html', 
-		                    reportName: '自动化测试报告', 
-		                    reportTitles: '自动化测试', 
-		                    useWrapperFileDirectly: false
-		                ]
-                    )
                 }
             }
         }
 
         stage('build image') {
             steps {
-                sh """
-                  docker info
-                  docker images
-                """
+                publishHTML(
+	                    [
+		                    allowMissing: false, 
+		                    alwaysLinkToLastBuild: false, 
+		                    keepAll: false, 
+		                    reportDir: '/home/jenkins/agent/workspace/report', 
+		                    reportFiles: 'index.html', 
+		                    reportName: '自动化测试报告', 
+		                    reportTitles: '自动化测试', 
+		                    useWrapperFileDirectly: false
+		                ]
+                    )
             }
         }
     }
