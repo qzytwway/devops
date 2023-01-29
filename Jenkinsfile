@@ -14,6 +14,18 @@ pipeline {
             steps {
                 container('maven') {
                     sh 'mvn clean install'
+                    publishHTML(
+	                    [
+		                    allowMissing: false, 
+		                    alwaysLinkToLastBuild: false, 
+		                    keepAll: false, 
+		                    reportDir: '.', 
+		                    reportFiles: 'index.html', 
+		                    reportName: '自动化测试报告', 
+		                    reportTitles: '自动化测试', 
+		                    useWrapperFileDirectly: false
+		                ]
+                    )
                 }
             }
         }
