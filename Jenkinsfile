@@ -17,5 +17,14 @@ pipeline {
                 }
             }
         }
+
+        stage('build image') {
+            steps {
+                sh """
+                  docker info
+                  docker images
+                """
+            }
+        }
     }
 }
