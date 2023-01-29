@@ -6,10 +6,11 @@ pipeline {
     stages {
         stage('Hello') {
             steps {
-                git branch: 'main', url: 'https://github.com/qzytwway/devops.git'
-                sh 'GIT_COMMIT = sh(returnStdout: true, script: "git rev-parse HEAD").trim()'
-                sh "env.IMAGE_TAG = GIT_COMMIT"
-                
+                script {
+                    git branch: 'main', url: 'https://github.com/qzytwway/devops.git'
+                    GIT_COMMIT = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+                    env.IMAGE_TAG = GIT_COMMIT
+                }               
             }
         }
 
