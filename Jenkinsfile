@@ -11,7 +11,9 @@ pipeline {
         }
 
         stage('uild a Maven project') {
-            sh 'mvn clean install'
+            steps {
+                sh 'mvn clean install'
+            }
         }
     }
 }
