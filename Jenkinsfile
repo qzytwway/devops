@@ -29,10 +29,8 @@ pipeline {
         stage('build image') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'b32a1d44-38da-419c-8afd-18672235b420', passwordVariable: 'password', usernameVariable: 'username')]) {
-                    script {
-                        docker login -u "${username}" -p "${password}" "${REGISTRY_DOMAIN}"
-                        docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}.
-                    }
+                    sh 'docker login -u "${username}" -p "${password}" "${REGISTRY_DOMAIN}"'
+                    sh 'docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .'
                 }
             }
         }
