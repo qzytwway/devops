@@ -20,14 +20,12 @@ pipeline {
 
         stage('test') {
             steps {
-                container(kubectl) {
                     configFileProvider([configFile(fileId: '02c30f8e-c78f-4bb9-bb3f-e208cb864916', targetLocation: 'admin.kubeconfig')]) {
                         sh 'kubectl get pod'
                     }
-                }
-                }
             }
         }
+    }
 
         // stage('build a Maven project') {
         //     steps {
@@ -49,4 +47,4 @@ pipeline {
         //         }
         //     }
         // }
-    }
+}
