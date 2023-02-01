@@ -20,7 +20,11 @@ pipeline {
 
         stage('test') {
             steps {
-                sh 'env'
+                container(kubectl) {
+                    kubeconfig(credentialsId: '8230b7e9-d3b3-4c2b-bcf4-e95b3326d764', serverUrl: 'https://kubernetes.default.svc.cluster.local') {
+                        sh 'kubectl get pod'
+                }
+                }
             }
         }
 
