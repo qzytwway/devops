@@ -44,7 +44,7 @@ pipeline {
         stage('Deploy') {
             steps {
                     configFileProvider([configFile(fileId: '02c30f8e-c78f-4bb9-bb3f-e208cb864916', targetLocation: 'admin.kubeconfig')]) {
-                        sh 'envsubst < deploy.yaml | kubectl -n ${params.namespace} apply -f - --kubeconfig=admin.kubeconfig'
+                        sh 'envsubst < deploy.yaml | kubectl --kubeconfig=admin.kubeconfig -n ${params.namespace} apply -f -'
                     }
             }
         }
