@@ -15,7 +15,7 @@ spec:
         app: hello
     spec:
       containers:
-      - image: ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
+      - image: ${REGISTRY_DOMAIN}/${GIT_REPO}/${BRANCH_NAME}:${GIT_COMMIT}
         name: hello
         ports: 
           - containerPort: 8080
