@@ -11,7 +11,7 @@ pipeline {
     }
 
     stages {
-        stage('Hello') {
+        stage('Clone Code') {
             steps {
                 script {
                     git branch: 'main', url: 'https://github.com/qzytwway/devops.git'
@@ -20,7 +20,7 @@ pipeline {
                 }               
             }
         }
-        stage('build a Maven project') {
+        stage('Build a Maven project') {
             steps {
                 container('maven') {
                     sh 'mvn clean install'
@@ -28,7 +28,7 @@ pipeline {
             }
         }
 
-        stage('build image') {
+        stage('Build image') {
             steps {
                 withCredentials([usernamePassword(credentialsId: '2f92bff0-0c0e-413f-9454-5c5ca37d190c', passwordVariable: 'password', usernameVariable: 'username')]) {
                     sh """
@@ -41,10 +41,10 @@ pipeline {
             }
         }
 
-        stage('deploy') {
+        stage('Deploy') {
             steps {
                     configFileProvider([configFile(fileId: '02c30f8e-c78f-4bb9-bb3f-e208cb864916', targetLocation: 'admin.kubeconfig')]) {
-                        sh 'envsubt < deploy.yaml | kubectl -n ${params.namespace} apply -f - --kubeconfig=admin.kubeconfig'
+                        sh 'envsubst < deploy.yaml | kubectl -n ${params.namespace} apply -f - --kubeconfig=admin.kubeconfig'
                     }
             }
         }
