@@ -1,13 +1,17 @@
-def REGISTRY_DOMAIN = "registry.cn-hangzhou.aliyuncs.com"
-def REGISTRY_URL = "http://${REGISTRY_DOMAIN}"
-def REGISTRY_CREDENTIALS_ID = 'b32a1d44-38da-419c-8afd-18672235b420'
-def GIT_REPO = 'qzytwway'
 pipeline {
     agent {
         label 'maven'
     } 
+
+    environment {
+        REGISTRY_DOMAIN = "registry.cn-hangzhou.aliyuncs.com"
+        REGISTRY_URL = "http://${REGISTRY_DOMAIN}"
+        REGISTRY_CREDENTIALS_ID = "b32a1d44-38da-419c-8afd-18672235b420"
+        GIT_REPO = "qzytwway"
+    }
+
     parameters {
-    choice choices: ['default', 'test'], name: 'namespace'
+        choice choices: ['default', 'test'], name: 'namespace'
     }
 
     stages {
