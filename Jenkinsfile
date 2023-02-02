@@ -6,6 +6,9 @@ pipeline {
     agent {
         label 'maven'
     } 
+    parameters {
+    choice choices: ['default', 'test'], name: 'namespace'
+    }
 
     stages {
         stage('Hello') {
@@ -17,34 +20,33 @@ pipeline {
                 }               
             }
         }
+        stage('build a Maven project') {
+            steps {
+                container('maven') {
+                    sh 'mvn clean install'
+                }
+            }
+        }
 
-        stage('test') {
+        stage('build image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: '2f92bff0-0c0e-413f-9454-5c5ca37d190c', passwordVariable: 'password', usernameVariable: 'username')]) {
+                    sh """
+                        docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
+                        docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .
+                        docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
+                        docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
+                    """
+                }
+            }
+        }
+
+        stage('deploy') {
             steps {
                     configFileProvider([configFile(fileId: '02c30f8e-c78f-4bb9-bb3f-e208cb864916', targetLocation: 'admin.kubeconfig')]) {
-                        sh 'kubectl create -f deploy.yaml --kubeconfig=admin.kubeconfig'
+                        sh 'envsubt < deploy.yaml | kubectl -n ${params.namespace} apply -f - --kubeconfig=admin.kubeconfig'
                     }
             }
         }
     }
-
-        // stage('build a Maven project') {
-        //     steps {
-        //         container('maven') {
-        //             sh 'mvn clean install'
-        //         }
-        //     }
-        // }
-
-        // stage('build image') {
-        //     steps {
-        //         withCredentials([usernamePassword(credentialsId: '2f92bff0-0c0e-413f-9454-5c5ca37d190c', passwordVariable: 'password', usernameVariable: 'username')]) {
-        //             sh """
-        //                 docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
-        //                 docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .
-        //                 docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
-        //                 docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
-        //             """
-        //         }
-        //     }
-        // }
 }

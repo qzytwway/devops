@@ -2,34 +2,37 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: nginx
-  name: nginx
+    app: hello
+  name: hello
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nginx
+      app: hello
   template:
     metadata:
       labels:
-        app: nginx
+        app: hello
     spec:
       containers:
-      - image: nginx
-        name: nginx
+      - image: ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
+        name: hello
+        ports: 
+          - containerPort: 8080
+            protocol: TCP
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: nginx
-  name: nginx
+    app: hello
+  name: hello
 spec:
   ports:
   - name: web
-    port: 80
+    port: 8080
     protocol: TCP
-    targetPort: 80
+    targetPort: 8080
   selector:
-    app: nginx
+    app: hello
   type: ClusterIP
