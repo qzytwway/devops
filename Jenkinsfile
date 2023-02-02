@@ -39,7 +39,7 @@ pipeline {
                             echo "Docker image is already exsit, So skip build stage"
                             return
                         }   catch(err) {
-                                sh 'gradle clean build -x test --refresh-dependencies'
+                                sh 'mvn clean install'
                         }
                     }
                 }
