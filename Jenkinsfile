@@ -4,9 +4,9 @@ pipeline {
     } 
 
     environment {
-        REGISTRY_DOMAIN = "registry.cn-hangzhou.aliyuncs.com"
+        REGISTRY_DOMAIN = "192.168.50.120"
         REGISTRY_URL = "http://${REGISTRY_DOMAIN}"
-        REGISTRY_CREDENTIALS_ID = "b32a1d44-38da-419c-8afd-18672235b420"
+        REGISTRY_CREDENTIALS_ID = "5e048a8c-6cd1-4524-8c3d-d47c26dfaa60"
         GIT_REPO = "qzytwway"
     }
 
@@ -27,14 +27,28 @@ pipeline {
         stage('Build a Maven project') {
             steps {
                 container('maven') {
-                    sh 'mvn clean install'
+                    script {
+                        try {
+                            if (env.TAG_NAME == null) {
+                                def response = httpRequest url: "${REGISTRY_URL}/api/repositories/${GIT_REPO}/${env.BRANCH_NAME}/tags/${GIT_COMMIT}",authentication: "${REGISTRY_CREDENTIALS_ID}"
+                            } else {
+                                def response = httpRequest url: "${REGISTRY_URL}/api/repositories/${GIT_REPO}/release/tags/${env.TAG_NAME}",authentication: "${REGISTRY_CREDENTIALS_ID}"
+                            }
+                            env.IMAGE_EXSIT = "1"
+                            currentBuild.result = 'SUCCESS'
+                            echo "Docker image is already exsit, So skip build stage"
+                            return
+                        }   catch(err) {
+                                sh 'gradle clean build -x test --refresh-dependencies'
+                        }
+                    }
                 }
             }
         }
 
         stage('Build image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: '2f92bff0-0c0e-413f-9454-5c5ca37d190c', passwordVariable: 'password', usernameVariable: 'username')]) {
+                withCredentials([usernamePassword(credentialsId: '5e048a8c-6cd1-4524-8c3d-d47c26dfaa60', passwordVariable: 'password', usernameVariable: 'username')]) {
                     sh """
                         docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
                         docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .
@@ -45,14 +59,14 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                    configFileProvider([configFile(fileId: '02c30f8e-c78f-4bb9-bb3f-e208cb864916', targetLocation: 'admin.kubeconfig')]) {
-                        script {
-                            sh "envsubst < deploy.yaml | kubectl --kubeconfig=admin.kubeconfig -n ${params.namespace} apply -f -"
-                        }
-                    }
-            }
-        }
+        // stage('Deploy') {
+        //     steps {
+        //             configFileProvider([configFile(fileId: '02c30f8e-c78f-4bb9-bb3f-e208cb864916', targetLocation: 'admin.kubeconfig')]) {
+        //                 script {
+        //                     sh "envsubst < deploy.yaml | kubectl --kubeconfig=admin.kubeconfig -n ${params.namespace} apply -f -"
+        //                 }
+        //             }
+        //     }
+        // }
     }
 }
