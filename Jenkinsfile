@@ -53,7 +53,14 @@ pipeline {
                     currentBuild.result = 'SUCCESS'
                     return
                 }   else {
-                        sh "echo 'image no exist'"
+                        withCredentials([usernamePassword(credentialsId: '9d5f961c-3982-4bbf-a28a-fa0ff602eafa', passwordVariable: 'password', usernameVariable: 'username')]) {
+                           if (env.TAG_NAME == null) {
+                              sh "echo 'we will build branch image'"
+                              sh "docker info"      
+                           } else {
+                              sh "echo 'we will build tag image'"
+                           }
+                        }
                     }
                 }   
             }
