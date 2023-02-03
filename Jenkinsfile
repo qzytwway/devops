@@ -48,13 +48,20 @@ pipeline {
 
         stage('Build image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: '9d5f961c-3982-4bbf-a28a-fa0ff602eafa', passwordVariable: 'password', usernameVariable: 'username')]) {
-                    sh """
-                        docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
-                        docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .
-                        docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
-                        docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
-                    """
+                script {
+                    if (env.IMAGE_EXSIT == "1") {
+                    currentBuild.result = 'SUCCESS'
+                    return
+                }   else {
+                        withCredentials([usernamePassword(credentialsId: '9d5f961c-3982-4bbf-a28a-fa0ff602eafa', passwordVariable: 'password', usernameVariable: 'username')]) {
+                        sh """
+                            docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
+                            docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .
+                            docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
+                            docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
+                        """
+                        }
+                    }   
                 }
             }
         }
