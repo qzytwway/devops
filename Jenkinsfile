@@ -30,9 +30,9 @@ pipeline {
                     script {
                         try {
                             if (env.TAG_NAME == null) {
-                                def response = httpRequest url: "${REGISTRY_URL}/api/repositories/${GIT_REPO}/${env.BRANCH_NAME}/tags/${GIT_COMMIT}",authentication: "${REGISTRY_CREDENTIALS_ID}"
+                                def response = httpRequest url: "${REGISTRY_URL}/api/v2.0/projects/${GIT_REPO}/repositories/${env.BRANCH_NAME}/artifacts/${GIT_COMMIT}",authentication: "${REGISTRY_CREDENTIALS_ID}"
                             } else {
-                                def response = httpRequest url: "${REGISTRY_URL}/api/repositories/${GIT_REPO}/release/tags/${env.TAG_NAME}",authentication: "${REGISTRY_CREDENTIALS_ID}"
+                                def response = httpRequest url: "${REGISTRY_URL}/api/v2.0/projects/${GIT_REPO}/repositories/release/tags/${env.TAG_NAME}",authentication: "${REGISTRY_CREDENTIALS_ID}"
                             }
                             env.IMAGE_EXSIT = "1"
                             currentBuild.result = 'SUCCESS'
@@ -54,12 +54,22 @@ pipeline {
                     return
                 }   else {
                         withCredentials([usernamePassword(credentialsId: '9d5f961c-3982-4bbf-a28a-fa0ff602eafa', passwordVariable: 'password', usernameVariable: 'username')]) {
-                        sh """
-                            docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
-                            docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .
-                            docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
-                            docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
-                        """
+                            if (env.TAG_NAME == null) {
+                                sh """
+                                    docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
+                                    docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .
+                                    docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
+                                    docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
+                                """
+                            } else {
+                                sh """
+                                    docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
+                                    docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME}") .
+                                    docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME}")
+                                    docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME}")
+                                """
+                            }
+
                         }
                     }   
                 }
