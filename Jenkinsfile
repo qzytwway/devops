@@ -58,9 +58,17 @@ pipeline {
                                 sh """
                                     echo 'we will build branch image'
                                     docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
+                                    docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .
+                                    docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
+                                    docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
                                 """  
                            } else {
-                              sh "echo 'we will build tag image'"
+                              sh """
+                                    docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
+                                    docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .
+                                    docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME}
+                                    docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME}
+                              """
                            }
                         }
                     }
