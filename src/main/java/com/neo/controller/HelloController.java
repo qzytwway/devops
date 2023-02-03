@@ -8,6 +8,6 @@ public class HelloController {
 	
     @RequestMapping("/hello")
     public String index() {
-        return "Hello test";
+        return "Hello test第一次";
     }
 }
