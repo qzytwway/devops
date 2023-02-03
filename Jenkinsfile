@@ -50,7 +50,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: '5e048a8c-6cd1-4524-8c3d-d47c26dfaa60', passwordVariable: 'password', usernameVariable: 'username')]) {
                     sh """
-                        docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
+                        docker login -u ${username} -p "${password}" ${REGISTRY_DOMAIN}
                         docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .
                         docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
                         docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
