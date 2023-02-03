@@ -54,6 +54,7 @@ pipeline {
                     return
                 }   else {
                         withCredentials([usernamePassword(credentialsId: '9d5f961c-3982-4bbf-a28a-fa0ff602eafa', passwordVariable: 'password', usernameVariable: 'username')]) {
+                            script {
                             if (env.TAG_NAME == null) {
                                 sh """
                                     docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
@@ -69,7 +70,7 @@ pipeline {
                                     docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME}
                                 """
                             }
-
+                            }
                         }
                     }   
                 }
