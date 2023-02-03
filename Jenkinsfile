@@ -54,21 +54,24 @@ pipeline {
                     return
                 }   else {
                         withCredentials([usernamePassword(credentialsId: '9d5f961c-3982-4bbf-a28a-fa0ff602eafa', passwordVariable: 'password', usernameVariable: 'username')]) {
-                            script {
                             if (env.TAG_NAME == null) {
-                                sh """
+                                script {
+                                    sh """
                                     docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
                                     docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .
                                     docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
                                     docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
                                 """
+                                }
                             } else {
-                                sh """
+                                script {
+                                   sh """
                                     docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
                                     docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME} .
                                     docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME}
                                     docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME}
-                                """
+                                """ 
+                                }
                             }
                             }
                         }
