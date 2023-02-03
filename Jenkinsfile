@@ -65,7 +65,7 @@ pipeline {
                            } else {
                               sh """
                                     docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
-                                    docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .
+                                    docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME} .
                                     docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME}
                                     docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME}
                               """
