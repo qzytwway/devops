@@ -56,7 +56,7 @@ pipeline {
                         withCredentials([usernamePassword(credentialsId: '9d5f961c-3982-4bbf-a28a-fa0ff602eafa', passwordVariable: 'password', usernameVariable: 'username')]) {
                             if (env.TAG_NAME == null) {
                                 sh """
-                                    echo 'we will build branch image
+                                    echo 'we will build branch image'
                                     docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
                                 """  
                            } else {
