@@ -6,7 +6,7 @@ pipeline {
     environment {
         REGISTRY_DOMAIN = "192.168.50.120"
         REGISTRY_URL = "http://${REGISTRY_DOMAIN}"
-        REGISTRY_CREDENTIALS_ID = "5e048a8c-6cd1-4524-8c3d-d47c26dfaa60"
+        REGISTRY_CREDENTIALS_ID = "9d5f961c-3982-4bbf-a28a-fa0ff602eafa"
         GIT_REPO = "qzytwway"
     }
 
@@ -48,9 +48,9 @@ pipeline {
 
         stage('Build image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: '5e048a8c-6cd1-4524-8c3d-d47c26dfaa60', passwordVariable: 'password', usernameVariable: 'username')]) {
+                withCredentials([usernamePassword(credentialsId: '9d5f961c-3982-4bbf-a28a-fa0ff602eafa', passwordVariable: 'password', usernameVariable: 'username')]) {
                     sh """
-                        docker login -u '"${username}"' -p ${password} ${REGISTRY_DOMAIN}
+                        docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
                         docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .
                         docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
                         docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
