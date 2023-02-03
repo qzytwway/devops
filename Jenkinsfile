@@ -32,7 +32,7 @@ pipeline {
                             if (env.TAG_NAME == null) {
                                 def response = httpRequest url: "${REGISTRY_URL}/api/v2.0/projects/${GIT_REPO}/repositories/${env.BRANCH_NAME}/artifacts/${GIT_COMMIT}",authentication: "${REGISTRY_CREDENTIALS_ID}"
                             } else {
-                                def response = httpRequest url: "${REGISTRY_URL}/api/v2.0/projects/${GIT_REPO}/repositories/release/tags/${env.TAG_NAME}",authentication: "${REGISTRY_CREDENTIALS_ID}"
+                                def response = httpRequest url: "${REGISTRY_URL}/api/v2.0/projects/${GIT_REPO}/repositories/release/artifacts/${env.TAG_NAME}",authentication: "${REGISTRY_CREDENTIALS_ID}"
                             }
                             env.IMAGE_EXSIT = "1"
                             currentBuild.result = 'SUCCESS'
