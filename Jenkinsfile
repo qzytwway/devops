@@ -10,6 +10,12 @@ podTemplate(
     def REGISTRY_CREDENTIALS_ID = "196d2faf-91a5-4ecb-943c-a3bfe2aa5ede"
 
     node(POD_LABEL) {
+        properties([
+            buildDiscarder(logRotator(
+                artifactDaysToKeepStr: '30',
+                artifactNumToKeepStr: '5'
+            ))
+        ])
         timestamps {
             try {
                 container('maven') {
