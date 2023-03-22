@@ -1,33 +1,24 @@
-pipeline {
-    agent {
-        label 'maven'
-    } 
+podTemplate(
+    volumes: [configMapVolume(configMapName: 'docker-config', mountPath: '/kaniko/.docker/')],
+    containers: [
+    containerTemplate(name: 'maven', image: 'registry.aliyuncs.com/qzytwway/maven:3.8.5', command: '/bin/sh', ttyEnabled: true),
+    containerTemplate(name: 'kaniko', image: 'registry.aliyuncs.com/qzytwway/executor:debug', command: '/bin/sh', ttyEnabled: true)
+  ]) {
+    def REGISTRY_DOMAIN = "192.168.10.120:85"
+    def REGISTRY_URL = "http://${REGISTRY_DOMAIN}"
+    def GIT_REPO = "qzytwway"
+    def REGISTRY_CREDENTIALS_ID = "196d2faf-91a5-4ecb-943c-a3bfe2aa5ede"
 
-    environment {
-        REGISTRY_DOMAIN = "192.168.50.120"
-        REGISTRY_URL = "http://${REGISTRY_DOMAIN}"
-        REGISTRY_CREDENTIALS_ID = "9d5f961c-3982-4bbf-a28a-fa0ff602eafa"
-        GIT_REPO = "qzytwway"
-    }
-
-    parameters {
-        choice choices: ['default', 'test'], name: 'namespace'
-    }
-
-    stages {
-        stage('Clone Code') {
-            steps {
-                script {
-                    git branch: 'main', url: 'https://github.com/qzytwway/devops.git'
-                    GIT_COMMIT = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
-                    env.IMAGE_TAG = GIT_COMMIT
-                }               
-            }
-        }
-        stage('Build a Maven project') {
-            steps {
+    node(POD_LABEL) {
+        timestamps {
+            try {
                 container('maven') {
-                    script {
+                    stage('Clone Code') {
+                        git branch: 'main', url: 'https://github.com/qzytwway/devops.git'
+                        GIT_COMMIT = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+                        env.IMAGE_TAG = GIT_COMMIT
+                            }               
+                    stage('Build a Maven project') {
                         try {
                             if (env.TAG_NAME == null) {
                                 def response = httpRequest url: "${REGISTRY_URL}/api/v2.0/projects/${GIT_REPO}/repositories/${env.BRANCH_NAME}/artifacts/${GIT_COMMIT}",authentication: "${REGISTRY_CREDENTIALS_ID}"
@@ -40,50 +31,30 @@ pipeline {
                             return
                         }   catch(err) {
                                 sh 'mvn clean install'
+                            }
                         }
-                    }
                 }
-            }
-        }
-
-        stage('Build image') {
-            steps {
-                script {
-                    if (env.IMAGE_EXSIT == "1") {
-                    currentBuild.result = 'SUCCESS'
-                    return
-                }   else {
-                        withCredentials([usernamePassword(credentialsId: '9d5f961c-3982-4bbf-a28a-fa0ff602eafa', passwordVariable: 'password', usernameVariable: 'username')]) {
+                container('kaniko') {
+                    stage('build image') {
+                        if (env.IMAGE_EXSIT == "1") {
+                        currentBuild.result = 'SUCCESS'
+                        return
+                    }   else {
                             if (env.TAG_NAME == null) {
-                                sh """
-                                    echo 'we will build branch image'
-                                    docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
-                                    docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} .
-                                    docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
-                                    docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}
-                                """  
-                           } else {
-                              sh """
-                                    docker login -u ${username} -p ${password} ${REGISTRY_DOMAIN}
-                                    docker build -t ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME} .
-                                    docker push ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME}
-                                    docker rmi ${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME}
-                              """
-                           }
+                                sh "/kaniko/executor --context `pwd` --dockerfile `pwd`/Dockerfile --destination=${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}"
+                        }   else {
+                                sh "/kaniko/executor --context `pwd` --dockerfile `pwd`/Dockerfile --destination=${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME}"
                         }
                     }
-                }   
+                    }
+                } 
+            } catch(err) {
+                    currentBuild.result = 'FAILURE'
+            } finally {
+                    stage('Clean WS'){
+                    cleanWs()
+              }
             }
         }
     }
-
-        // stage('Deploy') {
-        //     steps {
-        //             configFileProvider([configFile(fileId: '02c30f8e-c78f-4bb9-bb3f-e208cb864916', targetLocation: 'admin.kubeconfig')]) {
-        //                 script {
-        //                     sh "envsubst < deploy.yaml | kubectl --kubeconfig=admin.kubeconfig -n ${params.namespace} apply -f -"
-        //                 }
-        //             }
-        //     }
-        // }
 }
