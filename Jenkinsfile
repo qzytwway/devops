@@ -16,7 +16,7 @@ podTemplate(
                 logRotator(
                     artifactDaysToKeepStr: '',
                     artifactNumToKeepStr: '',
-                    daysToKeepStr: '30',
+                    daysToKeepStr: '10',
                     numToKeepStr: '5'
                 )
             )
