@@ -56,7 +56,7 @@ podTemplate(
                         return
                     }   else {
                             if (env.TAG_NAME == null) {
-                                sh "/kaniko/executor --context `pwd` --dockerfile `pwd`/Dockerfile --destination=${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT}"
+                                sh "/kaniko/executor --context `pwd` --dockerfile `pwd`/Dockerfile --destination=${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:${GIT_COMMIT} --destination=${REGISTRY_DOMAIN}/${GIT_REPO}/${env.BRANCH_NAME}:latest"
                         }   else {
                                 sh "/kaniko/executor --context `pwd` --dockerfile `pwd`/Dockerfile --destination=${REGISTRY_DOMAIN}/${GIT_REPO}/release:${env.TAG_NAME}"
                         }
