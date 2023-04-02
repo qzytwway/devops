@@ -4,7 +4,7 @@ podTemplate(
     containerTemplate(name: 'maven', image: 'registry.aliyuncs.com/qzytwway/maven:3.8.5', command: '/bin/sh', ttyEnabled: true),
     containerTemplate(name: 'kaniko', image: 'registry.aliyuncs.com/qzytwway/executor:debug', command: '/bin/sh', ttyEnabled: true)
   ]) {
-    def REGISTRY_DOMAIN = "192.168.10.120:85"
+    def REGISTRY_DOMAIN = "reg.qzytwway.cn"
     def REGISTRY_URL = "http://${REGISTRY_DOMAIN}"
     def GIT_REPO = "qzytwway"
     def REGISTRY_CREDENTIALS_ID = "196d2faf-91a5-4ecb-943c-a3bfe2aa5ede"
