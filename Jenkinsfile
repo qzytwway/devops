@@ -1,10 +1,26 @@
 pipeline {
-    agent any
-
+    agent {
+        label 'backend'
+    }
+     
+    options {
+        ansiColor('xterm')
+        timestamps()
+        buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '10', numToKeepStr: '5')
+    }
     stages {
-        stage('Hello') {
+        stage('Clone Code') {
             steps {
-                echo 'Hello World'
+                container('maven') {
+                    script {                        
+                        sh 'mvn clean install -Dmaven.test.skip=true'
+                    }
+                }
+            }
+        }
+        stage('clean ws') {
+            steps {
+                cleanWs()
             }
         }
     }
