@@ -4,6 +4,11 @@ def REGISTRY_CREDENTIALS_ID = 'e672bdfa-e62d-43ae-9324-121b0cc4c731'
 def GIT_REPO = "qzytwway"
 pipeline {
     agent any
+    options {
+        ansiColor('xterm')
+        timestamps()
+        buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '10', numToKeepStr: '5')
+    }
     stages {
         stage('checkout') {
             agent {
